@@ -1,0 +1,5 @@
+00001 John Doe             A 00500.00 0020
+00002 Jane Smith           A 01200.50 0045
+00003 Chris Evans          D 00000.00 0005
+00004 Alice Johnson        A 07500.00 0070
+00000 END OF FILE                         

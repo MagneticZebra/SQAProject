@@ -1,0 +1,5 @@
+00001_John Doe            _A_  499.95
+00002_Jane Smith          _A_ 1200.45
+00003_Chris Evans         _D_    0.00
+00004_Alice Johnson       _A_ 7499.95
+00000_END_OF_FILE______________________

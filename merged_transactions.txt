@@ -1,0 +1,5 @@
+01 John Doe             00001 00200.00  
+04 Jane Smith           00002 00300.50  
+02 Alice Johnson        00004 00050.00 00001  
+03 Chris Evans          00003 00200.00 FI
+00
