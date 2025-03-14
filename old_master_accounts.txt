@@ -1,5 +1,5 @@
-00001 John Doe             A 00500.00 0020
-00002 Jane Smith           A 01200.50 0045
-00003 Chris Evans          D 00000.00 0005
-00004 Alice Johnson        A 07500.00 0070
-00000 END OF FILE                         
+01000_andrew_hunter________D_00100.00_0000
+01001_darshil_patel________A_00250.00_0000
+01002_disha_padia__________A_02500.00_0000
+01003_robert_pianezza______A_00500.00_0000
+01004_END_OF_FILE__________D_00000.00_0000

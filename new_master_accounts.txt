@@ -1,4 +1,5 @@
-00001_John Doe            _A_  499.95_   2
-00002_Jane Smith          _A_ 1200.45_   4
-00003_Chris Evans         _D_    0.00_   0
-00004_Alice Johnson       _A_ 7499.95_   7
+01000_andrew_hunter________D_    0.00_   0
+01001_darshil_patel________A_    0.00_   0
+01002_disha_padia__________A_    0.00_   0
+01003_robert_pianezza______A_    0.00_   0
+01004_END_OF_FILE__________D_    0.00_   0
