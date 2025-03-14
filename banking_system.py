@@ -62,6 +62,124 @@ class BankingSystem:
             account["balance"] -= fee
 
 
+    # def read_old_bank_accounts(self, file_path: str) -> Dict[str, Dict]:
+    #     """Reads the old Master Bank Accounts file and returns a dictionary of accounts"""
+    #     accounts = {}
+    #     with open(file_path, "r") as file:
+    #         for line in file:
+    #             print(f"Reading Line: {repr(line)}")  # Debugging output
+                
+    #             account_number = line[:5].strip()
+    #             account_holder = line[6:26].strip()
+
+    #             if "END OF FILE" in account_holder:  # ✅ Skip EOF entry
+    #                 print("🔹 Skipping END OF FILE entry.")
+    #                 continue
+
+    #             status = line[27].strip()
+    #             balance_str = line[28:36].strip()
+    #             transaction_count_str = line[37:41].strip()
+
+    #             print(f"Extracted Account: {account_number}, Holder: {account_holder}")  # ✅ Debugging Output
+
+    #             # ✅ Ensure balance is valid
+    #             try:
+    #                 balance = float(balance_str) if balance_str else 0.0
+    #             except ValueError:
+    #                 print(f"ERROR: Could not convert balance: '{balance_str}' in line: {repr(line)}")
+    #                 balance = 0.0  # Default to 0.0 if an error occurs
+
+    #             # ✅ Ensure transaction count is valid
+    #             transaction_count = int(transaction_count_str) if transaction_count_str.isdigit() else 0
+
+    #             # ✅ Add default plan
+    #             plan = "SP"  # Default to student plan unless specified later
+
+    #             accounts[account_number] = {
+    #                 "name": account_holder,
+    #                 "status": status,
+    #                 "balance": balance,
+    #                 "transaction_count": transaction_count,
+    #                 "plan": plan,
+    #             }
+        
+    #     print(f"✅ Stored Accounts: {accounts.keys()}")  # ✅ Debugging output
+    #     return accounts
+    
+
+    # def read_old_bank_accounts(self, file_path):
+    #     """
+    #     Reads and validates the bank account file format
+    #     Returns list of accounts and prints fatal errors for invalid format
+    #     """
+    #     accounts = []
+    #     with open(file_path, 'r') as file:
+    #         for line_num, line in enumerate(file, 1):
+    #             # Remove newline but preserve other characters
+    #             clean_line = line.rstrip('\n')
+                
+    #             # Validate line length
+    #             if len(clean_line) != 42:
+    #                 print(f"ERROR: Fatal error - Line {line_num}: Invalid length ({len(clean_line)} chars)")
+    #                 continue
+
+    #             try:
+    #                 # Extract fields with positional validation
+    #                 account_number = clean_line[0:5]
+    #                 name = clean_line[6:26]  # 20 characters
+    #                 status = clean_line[27]
+    #                 balance_str = clean_line[29:37]  # 8 characters
+    #                 transactions_str = clean_line[38:42]  # 4 characters
+
+    #                 # Validate account number format (5 digits)
+    #                 if not account_number.isdigit():
+    #                     print(f"ERROR: Fatal error - Line {line_num}: Invalid account number format")
+    #                     continue
+
+    #                 # Validate status
+    #                 if status not in ('A', 'D'):
+    #                     print(f"ERROR: Fatal error - Line {line_num}: Invalid status '{status}'")
+    #                     continue
+
+    #                 # Validate balance format (XXXXX.XX)
+    #                 if (len(balance_str) != 8 or 
+    #                     balance_str[5] != '.' or 
+    #                     not balance_str[:5].isdigit() or 
+    #                     not balance_str[6:].isdigit()):
+    #                     print(f"ERROR: Fatal error - Line {line_num}: Invalid balance format")
+    #                     continue
+
+    #                 # Validate transaction count format
+    #                 if not transactions_str.isdigit():
+    #                     print(f"ERROR: Fatal error - Line {line_num}: Invalid transaction count format")
+    #                     continue
+
+    #                 # Convert numerical values
+    #                 balance = float(balance_str)
+    #                 transactions = int(transactions_str)
+
+    #                 # Validate business constraints
+    #                 if balance < 0:
+    #                     print(f"ERROR: Fatal error - Line {line_num}: Negative balance")
+    #                     continue
+    #                 if transactions < 0:
+    #                     print(f"ERROR: Fatal error - Line {line_num}: Negative transaction count")
+    #                     continue
+
+    #                 accounts.append({
+    #                     'account_number': account_number.lstrip('0') or '0',
+    #                     'name': name.strip(),
+    #                     'status': status,
+    #                     'balance': balance,
+    #                     'total_transactions': transactions
+    #                 })
+
+    #             except Exception as e:
+    #                 print(f"ERROR: Fatal error - Line {line_num}: Unexpected error: {str(e)}")
+    #                 continue
+
+    #     return 
+    
     def read_old_bank_accounts(self, file_path: str) -> Dict[str, Dict]:
         """Reads the old Master Bank Accounts file and returns a dictionary of accounts"""
         accounts = {}
@@ -80,6 +198,11 @@ class BankingSystem:
                 balance_str = line[28:36].strip()
                 transaction_count_str = line[37:41].strip()
 
+                # ✅ Ensure account number exists
+                if not account_number:
+                    print(f"❌ ERROR: Missing account number in line {repr(line)}")
+                    continue
+
                 print(f"Extracted Account: {account_number}, Holder: {account_holder}")  # ✅ Debugging Output
 
                 # ✅ Ensure balance is valid
@@ -95,7 +218,9 @@ class BankingSystem:
                 # ✅ Add default plan
                 plan = "SP"  # Default to student plan unless specified later
 
+                # ✅ Store Account
                 accounts[account_number] = {
+                    "account_number": account_number,  # ✅ Ensure it's included
                     "name": account_holder,
                     "status": status,
                     "balance": balance,
@@ -108,12 +233,67 @@ class BankingSystem:
 
 
 
-    def write_new_current_accounts(self, accounts: Dict[str, Dict], file_path: str) -> None:
-        """Writes the new Current Bank Accounts file"""
-        with open(file_path, "w") as file:
-            for account_number, acc in self.accounts.items():  # ✅ Loop through dict.items()
-                file.write(f"{account_number:>5}_{acc['name']:<20}_{acc['status']}_{acc['balance']:>8.2f}\n")
-            file.write("00000_END_OF_FILE______________________\n")  # ✅ Correct End-of-File format
+
+
+
+    # def write_new_current_accounts(self, accounts: Dict[str, Dict], file_path: str) -> None:
+    #     """Writes the new Current Bank Accounts file"""
+    #     with open(file_path, "w") as file:
+    #         for account_number, acc in self.accounts.items():  # ✅ Loop through dict.items()
+    #             file.write(f"{account_number:>5}_{acc['name']:<20}_{acc['status']}_{acc['balance']:>8.2f}\n")
+    #         file.write("00000_END_OF_FILE______________________\n")  # ✅ Correct End-of-File format
+
+
+
+    def write_new_current_accounts(self, accounts, file_path):
+        """
+        Writes Current Bank Accounts File with strict format validation.
+        Raises ValueError for invalid data to enable testing.
+        """
+        with open(file_path, 'w') as file:
+            for acc in accounts:
+                # ✅ Ensure each account has 'account_number'
+                if 'account_number' not in acc:
+                    print(f"❌ ERROR: Missing 'account_number' field in {acc}")
+                    continue  # Skip invalid account entry
+
+                # Validate account number
+                if not isinstance(acc['account_number'], str) or not acc['account_number'].isdigit():
+                    print(f"❌ ERROR: Invalid account number format: {acc['account_number']}")
+                    continue
+
+                if len(acc['account_number']) > 5:
+                    print(f"❌ ERROR: Account number too long: {acc['account_number']}")
+                    continue
+
+                # Validate name length
+                if len(acc['name']) > 20:
+                    print(f"❌ ERROR: Name exceeds 20 characters: {acc['name']}")
+                    continue
+
+                # Validate status
+                if acc['status'] not in ('A', 'D'):
+                    print(f"❌ ERROR: Invalid status: {acc['status']}")
+                    continue
+
+                # Validate balance
+                if not isinstance(acc['balance'], (int, float)):
+                    print(f"❌ ERROR: Invalid balance type: {type(acc['balance'])}")
+                    continue
+                if acc['balance'] > 99999.99 or acc['balance'] < 0:
+                    print(f"❌ ERROR: Balance out of range: {acc['balance']}")
+                    continue
+
+                # Format fields
+                acc_num = acc['account_number'].zfill(5)
+                name = acc['name'].ljust(20)[:20]
+                balance = f"{acc['balance']:08.2f}"
+
+                file.write(f"{acc_num} {name} {acc['status']} {balance}\n")
+
+            # Add END_OF_FILE marker
+            file.write("00000 END_OF_FILE          A 00000.00\n")
+
 
 
     def write_master_file(self, accounts: List[Dict], file_path: str) -> None:
