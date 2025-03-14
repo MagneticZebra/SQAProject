@@ -2,46 +2,56 @@ class AccountManager:
     def __init__(self, accounts: dict):
         self.accounts = accounts
     
+
     def process_transaction(self, transaction: dict) -> bool:
-        """Processes transactions by updating accounts accordingly"""
+        """Processes transactions and updates accounts accordingly"""
         account_number = transaction["account_number"]
         amount = transaction["amount"]
         transaction_code = transaction["code"]
 
-        # ✅ Debugging output to check account existence
         if account_number not in self.accounts:
             print(f"❌ ERROR: Account {account_number} does not exist.")
             return False
 
-        # ✅ Debugging output to check balance before withdrawal
-        print(f"🔹 Processing {transaction_code} for {account_number}: Current Balance: {self.accounts[account_number]['balance']}")
-
+        success = False
         if transaction_code == "01":  # Withdrawal
-            return self.withdraw(account_number, amount)
+            success = self.withdraw(account_number, amount)
         elif transaction_code == "02":  # Transfer
-            return self.transfer(account_number, transaction["misc"], amount)
+            success = self.transfer(account_number, transaction["misc"], amount)
         elif transaction_code == "03":  # Paybill
-            return self.pay_bill(account_number, transaction["misc"], amount)
+            success = self.pay_bill(account_number, transaction["misc"], amount)
         elif transaction_code == "04":  # Deposit
-            return self.deposit(account_number, amount)
+            success = self.deposit(account_number, amount)
         elif transaction_code == "05":  # Create Account
-            return self.create_account(transaction)
+            success = self.create_account(transaction)
         elif transaction_code == "06":  # Delete Account
-            return self.delete_account(account_number)
+            success = self.delete_account(account_number)
         elif transaction_code == "07":  # Disable Account
-            return self.disable_account(account_number)
+            success = self.disable_account(account_number)
         elif transaction_code == "08":  # Change Plan
-            return self.change_plan(account_number, transaction["misc"])
+            success = self.change_plan(account_number, transaction["misc"])
 
-        return False
+        # ✅ Ensure transaction count increments on success
+        if success:
+            self.accounts[account_number]["transaction_count"] += 1  # ✅ Increment transaction count
+            print(f"🔄 UPDATED TRANSACTION COUNT: {self.accounts[account_number]['transaction_count']} for {account_number}")
+
+        return success
+
 
 
     def withdraw(self, account_number: str, amount: float) -> bool:
         """Withdraws money from an account"""
         if account_number not in self.accounts or self.accounts[account_number]["balance"] < amount:
+            print(f"❌ ERROR: Insufficient Funds for Withdrawal | Account: {account_number} | Balance: {self.accounts[account_number]['balance']} | Requested: {amount}")
             return False
+        
+        print(f"💸 WITHDRAW: {amount} from {account_number} | Before: {self.accounts[account_number]['balance']}")
         self.accounts[account_number]["balance"] -= amount
+        print(f"✅ NEW BALANCE: {self.accounts[account_number]['balance']}")
+
         return True
+
 
     def transfer(self, from_account: str, to_account: str, amount: float) -> bool:
         """Transfers money between two accounts"""
@@ -59,22 +69,32 @@ class AccountManager:
             return False
 
         if self.accounts[account_number]["balance"] < amount:
-            return False  # Not enough balance
+            print(f"❌ ERROR: Insufficient funds for Pay Bill | Account: {account_number} | Balance: {self.accounts[account_number]['balance']} | Bill: {amount}")
+            return False
 
-        # Ensure the company is one of the allowed billers
-        allowed_companies = ["The Bright Light Electric Company (EC)", "Credit Card Company Q (CQ)", "Fast Internet, Inc. (FI)"]
+        allowed_companies = ["EC", "CQ", "FI"]
         if company not in allowed_companies:
-            return False  # Invalid company
+            print(f"❌ ERROR: Invalid Payee '{company}' for {account_number}")
+            return False
 
+        print(f"📝 PAY BILL: {amount} from {account_number} | Before: {self.accounts[account_number]['balance']}")
         self.accounts[account_number]["balance"] -= amount
+        print(f"✅ NEW BALANCE: {self.accounts[account_number]['balance']}")
+
         return True
+
 
     def deposit(self, account_number: str, amount: float) -> bool:
         """Deposits money into an account"""
         if account_number not in self.accounts:
             return False
+
+        print(f"💰 DEPOSIT: {amount} to {account_number} | Before: {self.accounts[account_number]['balance']}")
         self.accounts[account_number]["balance"] += amount
+        print(f"✅ NEW BALANCE: {self.accounts[account_number]['balance']}")
+
         return True
+
 
     def create_account(self, account_info: dict) -> bool:
         """Creates a new bank account"""
