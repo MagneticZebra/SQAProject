@@ -62,7 +62,7 @@ class AccountManager:
             return False  # Not enough balance
 
         # Ensure the company is one of the allowed billers
-        allowed_companies = ["The Bright Light Electric Company (EC)", "Credit Card Company Q (CQ)", "Fast Internet, Inc. (FI)"]
+        allowed_companies = ["EC", "CQ", "FI"]
         if company not in allowed_companies:
             return False  # Invalid company
 
