@@ -15,11 +15,6 @@ banking_system.apply_transactions()
 
 # Step 3: Apply Transaction Fees
 banking_system.calculate_transaction_fee()
-
-# ✅ Debug: Print final balances before writing the updated files
-print("\n✅ FINAL ACCOUNT BALANCES BEFORE WRITING:")
-for acc in banking_system.accounts.values():
-    print(f"{acc['account_number']} | {acc['name']} | Balance: {acc['balance']}")
     
 # Step 4: Update Master & Current Account Files
 banking_system.update_master_file()

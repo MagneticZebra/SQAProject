@@ -1,4 +1,3 @@
-import os
 from typing import List, Dict
 from account_manager import AccountManager
 from error_logger import ErrorLogger
@@ -19,49 +18,41 @@ class BankingSystem:
 
         self.account_manager = AccountManager(self.accounts)
 
+    # Reads the Master Bank Accounts and Transaction Files
     def read_input_files(self) -> None:
-        """Reads the Master Bank Accounts and Transaction Files"""
         self.accounts = self.read_old_bank_accounts(self.old_master_file)
         self.transactions = self.read_transactions(self.merged_transaction_file)
 
+    # Applies transactions to accounts and confirms updates
     def apply_transactions(self) -> None:
-        """Applies transactions to accounts and confirms updates"""
         for transaction in self.transactions:
-            account_number = transaction["account_number"]
-            transaction_code = transaction["code"]
+            self.account_manager.process_transaction(transaction)
 
-            success = self.account_manager.process_transaction(transaction)
+        self.accounts = self.account_manager.accounts
 
-            if success:
-                print(f"✅ TRANSACTION SUCCESS: {transaction_code} for {account_number}. Updated Balance: {self.accounts[account_number]['balance']}")
-
-
-
+    # Writes the updated account list to the new Master Bank Accounts File
     def update_master_file(self) -> None:
-        """Writes the updated account list to the new Master Bank Accounts File"""
-        print("\n📌 DEBUG: FINAL MASTER ACCOUNT BALANCES BEFORE WRITING:")
-        for acc in self.accounts.values():
+        # print("\n📌 DEBUG: FINAL MASTER ACCOUNT BALANCES BEFORE WRITING:")
+        for acc in self.account_manager.accounts.values():
             print(f"📝 MASTER WRITE: {acc['account_number']} | {acc['name']} | Balance: {acc['balance']} | Transactions: {acc['transaction_count']}")
 
-        self.write_master_file(list(self.accounts.values()), self.new_master_file)
+        self.write_master_file(list(self.account_manager.accounts.values()), self.new_master_file)
 
-
+    # Writes the updated account list to the new Current Bank Accounts File
     def update_current_file(self) -> None:
-        """Writes the updated account list to the new Current Bank Accounts File"""
         
-        # ✅ Print all account balances BEFORE writing
-        print("\n📌 DEBUG: FINAL CURRENT ACCOUNT BALANCES BEFORE WRITING:")
+        # Print all account balances BEFORE writing
+        #print("\nDEBUG: FINAL CURRENT ACCOUNT BALANCES BEFORE WRITING:")
         
-        for acc_number, acc in self.accounts.items():
-            print(f"📝 FINAL WRITE: {acc_number} | {acc['name']} | Balance: {acc['balance']} | Transactions: {acc['transaction_count']}")
+        # for acc_number, acc in self.accounts.items():
+        #     print(f"FINAL WRITE: {acc_number} | {acc['name']} | Balance: {acc['balance']} | Transactions: {acc['transaction_count']}")
 
-        # ✅ Pass the updated list to ensure correct values are written
+        # Pass the updated list to ensure correct values are written
         self.write_new_current_accounts(self.new_current_file)
 
 
-
+    # Deducts transaction fees based on transaction count
     def calculate_transaction_fee(self) -> None:
-        """Deducts transaction fees based on transaction count"""
         print("\n📌 DEBUG: APPLYING TRANSACTION FEES")
 
         for account_number, account in self.accounts.items():
@@ -73,28 +64,27 @@ class BankingSystem:
             total_fee = fee * transaction_count  # ✅ Apply fee for each transaction
 
             if transaction_count > 0:
-                print(f"💰 TRANSACTION FEE: Deducting {total_fee:.2f} from {account_number} (Total Transactions: {transaction_count})")
+                #print(f"💰 TRANSACTION FEE: Deducting {total_fee:.2f} from {account_number} (Total Transactions: {transaction_count})")
 
                 # ✅ Prevent negative balances
                 if account["balance"] - total_fee < 0:
                     print(f"❌ WARNING: Preventing negative balance for account {account_number}.")
-                    continue  # ✅ Skip fee deduction if insufficient balance
+                    continue  # Skip fee deduction if insufficient balance
 
-                account["balance"] -= total_fee  # ✅ Deduct total fee
+                account["balance"] -= total_fee  # Deduct total fee
 
-    
+    # Reads the old Master Bank Accounts file and returns a dictionary of accounts
     def read_old_bank_accounts(self, file_path: str) -> Dict[str, Dict]:
-        """Reads the old Master Bank Accounts file and returns a dictionary of accounts"""
         accounts = {}
         with open(file_path, "r") as file:
             for line in file:
-                print(f"Reading Line: {repr(line)}")  # Debugging output
+                #print(f"Reading Line: {repr(line)}")  # Debugging output
                 
                 account_number = line[:5].strip()
-                account_holder = line[6:26].strip()
+                account_holder = line[6:26].strip("_")
 
                 if "END OF FILE" in account_holder:  # ✅ Skip EOF entry
-                    print("🔹 Skipping END OF FILE entry.")
+                    print("Skipping END OF FILE entry.")
                     continue
 
                 status = line[27].strip()
@@ -106,7 +96,7 @@ class BankingSystem:
                     print(f"❌ ERROR: Missing account number in line {repr(line)}")
                     continue
 
-                print(f"Extracted Account: {account_number}, Holder: {account_holder}")  # ✅ Debugging Output
+                #print(f"Extracted Account: {account_number}, Holder: {account_holder}")  # ✅ Debugging Output
 
                 # ✅ Ensure balance is valid
                 try:
@@ -131,97 +121,47 @@ class BankingSystem:
                     "plan": plan,
                 }
         
-        print(f"✅ Stored Accounts: {accounts.keys()}")  # ✅ Debugging output
+        #print(accounts)
         return accounts
 
-
-    # def write_new_current_accounts(self, file_path):
-    #     """
-    #     Writes Current Bank Accounts File with strict format validation.
-    #     Raises ValueError for invalid data to enable testing.
-    #     """
-    #     with open(file_path, 'w') as file:
-    #         for acc in self.accounts.values():  # ✅ Use self.accounts directly
-    #             # ✅ Ensure each account has 'account_number'
-    #             if 'account_number' not in acc:
-    #                 print(f"❌ ERROR: Missing 'account_number' field in {acc}")
-    #                 continue  # Skip invalid account entry
-
-    #             # Validate account number
-    #             if not isinstance(acc['account_number'], str) or not acc['account_number'].isdigit():
-    #                 print(f"❌ ERROR: Invalid account number format: {acc['account_number']}")
-    #                 continue
-
-    #             if len(acc['account_number']) > 5:
-    #                 print(f"❌ ERROR: Account number too long: {acc['account_number']}")
-    #                 continue
-
-    #             # Validate name length
-    #             if len(acc['name']) > 20:
-    #                 print(f"❌ ERROR: Name exceeds 20 characters: {acc['name']}")
-    #                 continue
-
-    #             # Validate status
-    #             if acc['status'] not in ('A', 'D'):
-    #                 print(f"❌ ERROR: Invalid status: {acc['status']}")
-    #                 continue
-
-    #             # Validate balance
-    #             if not isinstance(acc['balance'], (int, float)):
-    #                 print(f"❌ ERROR: Invalid balance type: {type(acc['balance'])}")
-    #                 continue
-    #             if acc['balance'] > 99999.99 or acc['balance'] < 0:
-    #                 print(f"❌ ERROR: Balance out of range: {acc['balance']}")
-    #                 continue
-
-    #             # Format fields
-    #             acc_num = acc['account_number'].zfill(5)
-    #             name = acc['name'].ljust(20)[:20]
-    #             balance = f"{acc['balance']:08.2f}"
-
-    #             file.write(f"{acc_num} {name} {acc['status']} {balance}\n")
-
-    #         # Add END_OF_FILE marker
-    #         file.write("00000 END_OF_FILE          A 00000.00\n")
-
+    # Writes the updated Current Bank Accounts file
     def write_new_current_accounts(self, file_path):
-        """Writes the updated Current Bank Accounts File."""
         with open(file_path, 'w') as file:
             for acc in self.accounts.values():
-                print(f"📝 WRITING FINAL ACCOUNT: {acc['account_number']} | {acc['name']} | Final Balance: {acc['balance']}")
+                # print(f"📝 WRITING FINAL ACCOUNT: {acc['account_number']} | {acc['name']} | Final Balance: {acc['balance']}")
 
                 acc_num = acc['account_number'].zfill(5)
-                name = acc['name'].ljust(20)[:20]
+                name = acc['name'].ljust(20, '_')[:20]
                 balance = f"{acc['balance']:08.2f}"
 
-                file.write(f"{acc_num} {name} {acc['status']} {balance}\n")
+                file.write(f"{acc_num}_{name}_{acc['status']}_{balance}\n")
 
-            file.write("00000 END_OF_FILE          A 00000.00\n")
+            #file.write("00000 END_OF_FILE          A 00000.00\n")
 
-
+    # Writes the updated Master Bank Accounts file
     def write_master_file(self, accounts: List[Dict], file_path: str) -> None:
-        """Writes the new Master Bank Accounts file"""
         with open(file_path, "w") as file:
             for account_number, acc in self.accounts.items():  # Loop through dict.items()
-                file.write(f"{account_number:>5}_{acc['name']:<20}_{acc['status']}_{acc['balance']:>8.2f}_{acc['transaction_count']:>4}\n")
+                file.write(f"{account_number:>5}_{acc['name'].ljust(20, '_')}_{acc['status']}_{acc['balance']:08.2f}_{str(acc['transaction_count']).zfill(4)}\n")
 
-
+    # Reads the merged transaction file
     def read_transactions(self, file_path: str) -> List[Dict]:
-        """Reads the Merged Transaction File"""
         transactions = []
         with open(file_path, "r") as file:
             for line in file:
-                print(f"Reading Transaction Line: {repr(line)}")  # Debugging Output
+                #print(f"Reading Transaction Line: {repr(line)}")  # Debugging Output
                 if line.startswith("00"):  # End of session
                     break
                 transaction = {
                     "code": line[:2].strip(),
-                    "name": line[3:23].strip(),
+                    "name": line[3:23].strip("_"),
                     "account_number": line[24:29].strip(),
                     "amount": float(line[30:38].strip()),
                     "misc": line[39:].strip(),
                 }
-                print(f"Extracted Transaction: {transaction}")  # Debugging Output
+                #print(f"Extracted Transaction: {transaction}")  # Debugging Output
                 transactions.append(transaction)
+
+        #print (transactions)        
         return transactions
 
