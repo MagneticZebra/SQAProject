@@ -94,9 +94,12 @@ class BankingSystem:
         accounts = {}
         accounts_list = read.read_old_bank_accounts(file_path)
         for account in accounts_list:
+            if account['name'] == 'END_OF_FILE':
+                continue
             account_number = account["account_number"].zfill(5)
             account["plan"] = "SP"
             accounts[account_number] = account
+            print(account)
 
         return accounts
 
