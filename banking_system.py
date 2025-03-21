@@ -80,7 +80,7 @@ class BankingSystem:
             if transaction_count > 0:
                 #print(f"💰 TRANSACTION FEE: Deducting {total_fee:.2f} from {account_number} (Total Transactions: {transaction_count})")
 
-                # ✅ Prevent negative balances
+                # Prevent negative balances
                 if account["balance"] - total_fee < 0:
                     print(f"❌ WARNING: Preventing negative balance for account {account_number}.")
                     continue  # Skip fee deduction if insufficient balance
@@ -125,10 +125,10 @@ class BankingSystem:
         with open(file_path, 'w') as file:
             for acc in sorted(self.accounts.values(), key=lambda x: int(x["account_number"])):
                 acc_num = acc['account_number'].zfill(5)
-                name = acc['name'].ljust(20, '_')[:20]
+                name = acc['name'].ljust(20, ' ')[:20]
                 balance = f"{acc['balance']:08.2f}"
 
-                file.write(f"{acc_num}_{name}_{acc['status']}_{balance}\n")
+                file.write(f"{acc_num} {name} {acc['status']} {balance}\n")
 
             # Ensure only one EOF entry exists
             if self.accounts:
@@ -137,7 +137,7 @@ class BankingSystem:
                 last_account_number = 10000  # Default if no accounts exist
 
             eof_account_number = str(last_account_number + 1).zfill(5)
-            file.write(f"{eof_account_number}_END_OF_FILE__________A_00000.00\n")
+            file.write(f"{eof_account_number} END_OF_FILE          A 00000.00\n")
 
 
     # Writes the updated Master Bank Accounts file
@@ -145,7 +145,7 @@ class BankingSystem:
         with open(file_path, "w") as file:
             # Write all active accounts
             for acc in sorted(self.accounts.values(), key=lambda x: int(x["account_number"])):
-                file.write(f"{acc['account_number']:>5}_{acc['name'].ljust(20, '_')}_{acc['status']}_{acc['balance']:08.2f}_{str(acc['transaction_count']).zfill(4)}\n")
+                file.write(f"{acc['account_number']:>5} {acc['name'].ljust(20, ' ')} {acc['status']} {acc['balance']:08.2f} {str(acc['transaction_count']).zfill(4)}\n")
 
             # Ensure only one EOF entry exists
             if self.accounts:  # Ensure there are accounts left
@@ -154,7 +154,7 @@ class BankingSystem:
                 last_account_number = 10000  # Default if no accounts exist
 
             eof_account_number = str(last_account_number + 1).zfill(5)
-            file.write(f"{eof_account_number}_END_OF_FILE__________A_00000.00_0000\n")
+            file.write(f"{eof_account_number} END_OF_FILE          A 00000.00 0000\n")
 
     # Reads the merged transaction file
     def read_transactions(self, file_path: str) -> List[Dict]:
