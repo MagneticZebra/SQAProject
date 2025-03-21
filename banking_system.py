@@ -84,7 +84,8 @@ class BankingSystem:
 
                 # Prevent negative balances
                 if account["balance"] - total_fee < 0:
-                    print(f"❌ WARNING: Preventing negative balance for account {account_number}.")
+                    self.error_logger.log_constraint_error('Insufficient funds', f'account {account_number} cannot pay transaction fees')
+                    account['balance'] = 0.0
                     continue  # Skip fee deduction if insufficient balance
 
                 account["balance"] -= total_fee  # Deduct total fee
