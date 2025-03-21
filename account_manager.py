@@ -33,7 +33,7 @@ class AccountManager:
 
         # Ensure transaction count increments on success
         if success and account_number in self.accounts:
-            self.accounts[account_number]["transaction_count"] += 1  # Increment transaction count
+            self.accounts[account_number]["total_transactions"] += 1  # Increment transaction count
 
         return success
 
@@ -89,7 +89,7 @@ class AccountManager:
             "name": transaction["name"],
             "status": "A",  # Active status
             "balance": transaction["amount"],  # Initial deposit amount
-            "transaction_count": 0,
+            "total_transactions": 0,
             "plan": "NS",  # Default to Non-Student plan
         }
 

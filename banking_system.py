@@ -1,6 +1,8 @@
 from typing import List, Dict
 from account_manager import AccountManager
 from error_logger import ErrorLogger
+import read
+import write
 
 class BankingSystem:
     def __init__(self, old_master_file: str, merged_transaction_file: str):
@@ -56,7 +58,7 @@ class BankingSystem:
     # Writes the updated account list to the new Master Bank Accounts File
     def update_master_file(self) -> None:
         for acc in self.account_manager.accounts.values():
-            print(f"📝 MASTER WRITE: {acc['account_number']} | {acc['name']} | Balance: {acc['balance']} | Transactions: {acc['transaction_count']}")
+            print(f"📝 MASTER WRITE: {acc['account_number']} | {acc['name']} | Balance: {acc['balance']} | Transactions: {acc['total_transactions']}")
 
         self.write_master_file(list(self.account_manager.accounts.values()), self.new_master_file)
 
@@ -74,11 +76,11 @@ class BankingSystem:
                 continue
 
             fee = 0.05 if account["plan"] == "SP" else 0.10  # Different fees based on account type
-            transaction_count = account.get("transaction_count", 0)
-            total_fee = fee * transaction_count  # Apply fee for each transaction
+            total_transactions = account.get("total_transactions", 0)
+            total_fee = fee * total_transactions  # Apply fee for each transaction
 
-            if transaction_count > 0:
-                #print(f"💰 TRANSACTION FEE: Deducting {total_fee:.2f} from {account_number} (Total Transactions: {transaction_count})")
+            if total_transactions > 0:
+                #print(f"💰 TRANSACTION FEE: Deducting {total_fee:.2f} from {account_number} (Total Transactions: {total_transactions})")
 
                 # ✅ Prevent negative balances
                 if account["balance"] - total_fee < 0:
@@ -89,6 +91,16 @@ class BankingSystem:
 
     # Reads the old Master Bank Accounts file and returns a dictionary of accounts
     def read_old_bank_accounts(self, file_path: str) -> Dict[str, Dict]:
+        accounts = {}
+        accounts_list = read.read_old_bank_accounts(file_path)
+        for account in accounts_list:
+            account_number = account["account_number"].zfill(5)
+            account["plan"] = "SP"
+            print(account)
+            accounts[account_number] = account
+
+        return accounts
+
         accounts = {}
         with open(file_path, "r") as file:
             for line in file:
@@ -101,21 +113,21 @@ class BankingSystem:
 
                 status = line[27].strip()
                 balance_str = line[28:36].strip().replace("_", "")
-                transaction_count_str = line[37:41].strip()
+                total_transactions_str = line[37:41].strip()
 
                 try:
                     balance = float(balance_str) if balance_str else 0.0
                 except ValueError:
                     balance = 0.0
 
-                transaction_count = int(transaction_count_str) if transaction_count_str.isdigit() else 0
+                total_transactions = int(total_transactions_str) if total_transactions_str.isdigit() else 0
 
                 accounts[account_number] = {
                     "account_number": account_number,
                     "name": account_holder,
                     "status": status,
                     "balance": balance,
-                    "transaction_count": transaction_count,
+                    "total_transactions": total_transactions,
                     "plan": "SP",
                 }
         return accounts
@@ -145,7 +157,7 @@ class BankingSystem:
         with open(file_path, "w") as file:
             # Write all active accounts
             for acc in sorted(self.accounts.values(), key=lambda x: int(x["account_number"])):
-                file.write(f"{acc['account_number']:>5}_{acc['name'].ljust(20, '_')}_{acc['status']}_{acc['balance']:08.2f}_{str(acc['transaction_count']).zfill(4)}\n")
+                file.write(f"{acc['account_number']:>5}_{acc['name'].ljust(20, '_')}_{acc['status']}_{acc['balance']:08.2f}_{str(acc['total_transactions']).zfill(4)}\n")
 
             # Ensure only one EOF entry exists
             if self.accounts:  # Ensure there are accounts left
