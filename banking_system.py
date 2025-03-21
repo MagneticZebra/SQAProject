@@ -96,68 +96,20 @@ class BankingSystem:
         for account in accounts_list:
             account_number = account["account_number"].zfill(5)
             account["plan"] = "SP"
-            print(account)
             accounts[account_number] = account
 
         return accounts
 
-        accounts = {}
-        with open(file_path, "r") as file:
-            for line in file:
-                account_number = line[:5].strip()
-                account_holder = line[6:26].strip("_")
-
-                # Skip EOF entry if it exists
-                if "END_OF_FILE" in account_holder:
-                    continue
-
-                status = line[27].strip()
-                balance_str = line[28:36].strip().replace("_", "")
-                total_transactions_str = line[37:41].strip()
-
-                try:
-                    balance = float(balance_str) if balance_str else 0.0
-                except ValueError:
-                    balance = 0.0
-
-                total_transactions = int(total_transactions_str) if total_transactions_str.isdigit() else 0
-
-                accounts[account_number] = {
-                    "account_number": account_number,
-                    "name": account_holder,
-                    "status": status,
-                    "balance": balance,
-                    "total_transactions": total_transactions,
-                    "plan": "SP",
-                }
-        return accounts
-
     # Writes the updated Current Bank Accounts file
     def write_new_current_accounts(self, file_path):
-        with open(file_path, 'w') as file:
-            for acc in sorted(self.accounts.values(), key=lambda x: int(x["account_number"])):
-                acc_num = acc['account_number'].zfill(5)
-                name = acc['name'].ljust(20, ' ')[:20]
-                balance = f"{acc['balance']:08.2f}"
-
-                file.write(f"{acc_num} {name} {acc['status']} {balance}\n")
-
-            # Ensure only one EOF entry exists
-            if self.accounts:
-                last_account_number = max(int(acc["account_number"]) for acc in self.accounts.values())
-            else:
-                last_account_number = 10000  # Default if no accounts exist
-
-            eof_account_number = str(last_account_number + 1).zfill(5)
-            file.write(f"{eof_account_number} END_OF_FILE          A 00000.00\n")
-
+        write.write_new_current_accounts(self.accounts.values(), file_path)
 
     # Writes the updated Master Bank Accounts file
     def write_master_file(self, accounts: List[Dict], file_path: str) -> None:
         with open(file_path, "w") as file:
             # Write all active accounts
             for acc in sorted(self.accounts.values(), key=lambda x: int(x["account_number"])):
-                file.write(f"{acc['account_number']:>5} {acc['name'].ljust(20, ' ')} {acc['status']} {acc['balance']:08.2f} {str(acc['total_transactions']).zfill(4)}\n")
+                file.write(f"{acc['account_number'].zfill(5)} {acc['name'].ljust(20, ' ')} {acc['status']} {acc['balance']:08.2f} {str(acc['total_transactions']).zfill(4)}\n")
 
             # Ensure only one EOF entry exists
             if self.accounts:  # Ensure there are accounts left

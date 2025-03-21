@@ -1,6 +1,9 @@
 01000 andrew_hunter        D 00119.85 0003
 01001 darshil_patel        A 00379.85 0003
 01002 disha_padia          D 04349.80 0004
-01004 david_dab            A 00799.90 0001
-01005 eric_dip             A 00799.90 0001
-01006 END_OF_FILE          A 00000.00 0000
+01004 END_OF_FILE          D 00799.90 0002
+01005 david_dab            A 00799.80 0002
+01006 david_dab            A 00000.00 0000
+01007 eric_dip             A 00000.00 0000
+01008 eric_dip             A 00000.00 0000
+01009 END_OF_FILE          A 00000.00 0000
