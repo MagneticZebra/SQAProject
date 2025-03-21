@@ -80,7 +80,6 @@ class BankingSystem:
             total_fee = fee * total_transactions  # Apply fee for each transaction
 
             if total_transactions > 0:
-                #print(f"💰 TRANSACTION FEE: Deducting {total_fee:.2f} from {account_number} (Total Transactions: {total_transactions})")
 
                 # Prevent negative balances
                 if account["balance"] - total_fee < 0:
@@ -132,7 +131,7 @@ class BankingSystem:
                     break
                 transaction = {
                     "code": line[:2].strip(),
-                    "name": line[3:23].strip("_"),
+                    "name": line[3:23].strip(),
                     "account_number": line[24:29].strip(),
                     "amount": float(line[30:38].strip()),
                     "misc": line[39:].strip(),
