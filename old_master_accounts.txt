@@ -1,5 +1,5 @@
-01000_andrew_hunter________D_00100.00_0000
-01001_darshil_patel________A_00250.00_0000
-01002_disha_padia__________A_02500.00_0000
-01003_robert_pianezza______A_00500.00_0000
-01004_END_OF_FILE__________D_00000.00_0000
+01000 andrew_hunter        D 00100.00 0000
+01001 darshil_patel        A 00250.00 0000
+01002 disha_padia          A 02500.00 0000
+01003 robert_pianezza      A 00500.00 0000
+01004 END_OF_FILE          D 00000.00 0000
