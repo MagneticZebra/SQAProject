@@ -1,6 +1,6 @@
 from typing import List, Dict
 from account_manager import AccountManager
-from error_logger import ErrorLogger
+import print_error as error_logger
 import read
 import write
 
@@ -13,7 +13,6 @@ class BankingSystem:
         self.accounts = {}  # Stores bank accounts as a dictionary
         self.transactions = []
 
-        self.error_logger = ErrorLogger()
 
         self.read_input_files()
 
@@ -28,9 +27,9 @@ class BankingSystem:
     def apply_transactions(self) -> None:
         for transaction in self.transactions:
             if transaction["code"] not in ["01", "03", "04", "05", "06", "07", "08"]:
-                self.error_logger.log_fatal_error("Invalid Transaction Code", 
-                    f"Unknown transaction code {transaction['code']} in merged transaction file.")
-                exit(1)  # Stop execution due to fatal error
+                error_logger.log_constraint_error(f"Unknown transaction code {transaction['code']} in merged transaction file.",
+                    "banking_system.py",  # file causing the error
+                    fatal=True)
 
             self.account_manager.process_transaction(transaction)
             if transaction["code"] == "05":  # Create account
@@ -83,7 +82,7 @@ class BankingSystem:
 
                 # Prevent negative balances
                 if account["balance"] - total_fee < 0:
-                    self.error_logger.log_constraint_error('Insufficient funds', f'account {account_number} cannot pay transaction fees')
+                    error_logger.log_constraint_error('Insufficient funds', f'account {account_number} cannot pay transaction fees')
                     account['balance'] = 0.0
                     continue  # Skip fee deduction if insufficient balance
 
@@ -97,7 +96,6 @@ class BankingSystem:
             if account['name'] == 'END_OF_FILE':
                 continue
             account_number = account["account_number"].zfill(5)
-            account["plan"] = "SP"
             accounts[account_number] = account
             print(account)
 
@@ -112,7 +110,7 @@ class BankingSystem:
         with open(file_path, "w") as file:
             # Write all active accounts
             for acc in sorted(self.accounts.values(), key=lambda x: int(x["account_number"])):
-                file.write(f"{acc['account_number'].zfill(5)} {acc['name'].ljust(20, ' ')} {acc['status']} {acc['balance']:08.2f} {str(acc['total_transactions']).zfill(4)}\n")
+                file.write(f"{acc['account_number'].zfill(5)} {acc['name'].ljust(20, ' ')} {acc['status']} {acc['balance']:08.2f} {str(acc['total_transactions']).zfill(4)} {acc['plan']}\n")
 
             # Ensure only one EOF entry exists
             if self.accounts:  # Ensure there are accounts left
@@ -121,7 +119,7 @@ class BankingSystem:
                 last_account_number = 10000  # Default if no accounts exist
 
             eof_account_number = str(last_account_number + 1).zfill(5)
-            file.write(f"{eof_account_number} END_OF_FILE          A 00000.00 0000\n")
+            file.write(f"{eof_account_number} END_OF_FILE          A 00000.00 0000 NP\n")
 
     # Reads the merged transaction file
     def read_transactions(self, file_path: str) -> List[Dict]:

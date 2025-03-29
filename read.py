@@ -8,14 +8,14 @@ def read_old_bank_accounts(file_path):
         for line_num, line in enumerate(file, 1):
             clean_line = line.rstrip('\n')
 
-            # Validate line length (now 44 chars to include plan type)
+            # Validate line length (now 45 chars to include plan type)
             if len(clean_line) != 45:
                 print(f"ERROR: Fatal error - Line {line_num}: Invalid length ({len(clean_line)} chars, expected 45)")
                 continue
 
             try:
                 # Extract fields with positional validation
-                account_number = clean_line[0:4]
+                account_number = clean_line[0:5]
                 name = clean_line[6:25]  # 20 characters
                 status = clean_line[27]
                 balance_str = clean_line[29:37]  # 8 characters
@@ -79,5 +79,4 @@ def read_old_bank_accounts(file_path):
             except Exception as e:
                 print(f"ERROR: Fatal error - Line {line_num}: Unexpected error - {str(e)}")
                 continue
-
     return accounts

@@ -1,9 +1,8 @@
-from error_logger import ErrorLogger
+import print_error as error_logger
 
 class AccountManager:
     def __init__(self, accounts: dict):
         self.accounts = accounts
-        self.error_logger = ErrorLogger()
     
     # Processes a transaction and updates the account balances
     def process_transaction(self, transaction: dict) -> bool:
@@ -12,7 +11,7 @@ class AccountManager:
         transaction_code = transaction["code"]
 
         if account_number not in self.accounts:
-            self.error_logger.log_constraint_error("Invalid Account", f"Account {account_number} does not exist.")
+            error_logger.log_constraint_error("Invalid Account", f"Account {account_number} does not exist.")
             return False
 
         success = False
@@ -37,11 +36,21 @@ class AccountManager:
 
         return success
 
+    def is_account_disabled(self, account_number: str) -> bool:
+        return self.accounts[account_number]["status"] == "D"
+
     # withdrawals money from an account
     def withdrawal(self, account_number: str, amount: float) -> bool:
         if account_number not in self.accounts or self.accounts[account_number]["balance"] < amount:
-            self.error_logger.log_constraint_error("Insufficient Funds", 
+            error_logger.log_constraint_error("Insufficient Funds", 
                 f"Account {account_number} has {self.accounts[account_number]['balance']}, cannot withdraw {amount}.")
+            return False
+        
+        if self.is_account_disabled(account_number):
+            error_logger.log_constraint_error(
+                f"Cannot withdraw from disabled account {account_number}.",
+                "account_manager.py"
+            )
             return False
         
         self.accounts[account_number]["balance"] -= amount
@@ -52,17 +61,24 @@ class AccountManager:
     def paybill(self, account_number: str, company: str, amount: float) -> bool:
         if account_number not in self.accounts:
             return False
+        
+        if self.is_account_disabled(account_number):
+            error_logger.log_constraint_error(
+                f"Cannot pay bills from disabled account {account_number}.",
+                "account_manager.py"
+            )
+            return False
 
         if self.accounts[account_number]["balance"] < amount:
-            self.error_logger.log_constraint_error("Insufficient Funds", 
+            error_logger.log_constraint_error("Insufficient Funds", 
                 f"Account {account_number} has {self.accounts[account_number]['balance']}, cannot pay bill {amount}.")
             return False
 
         # Ensure the company is one of the allowed billers
         allowed_companies = ["EC", "CQ", "FI"]
         if company not in allowed_companies:
-            self.error_logger.log_constraint_error("Invalid Payee", 
-                f"Account {account_number} tried to pay an invalid company: {company}.")
+            error_logger.log_constraint_error("Invalid Payee", 
+                f"Account {account_number} tried to pay an invalid company: {company}.", fatal=True)
             return False
 
         self.accounts[account_number]["balance"] -= amount
@@ -73,6 +89,14 @@ class AccountManager:
     def deposit(self, account_number: str, amount: float) -> bool:
         if account_number not in self.accounts:
             return False
+        
+        if self.is_account_disabled(account_number):
+            error_logger.log_constraint_error(
+                f"Cannot deposit into disabled account {account_number}.",
+                "account_manager.py"
+            )
+            return False
+
 
         self.accounts[account_number]["balance"] += amount
         return True
@@ -90,7 +114,7 @@ class AccountManager:
             "status": "A",  # Active status
             "balance": transaction["amount"],  # Initial deposit amount
             "total_transactions": 0,
-            "plan": "NS",  # Default to Non-Student plan
+            "plan": transaction["misc"],  # Transaction plan (NP or SP)
         }
 
         print(f"✅ New account created: {new_account_number} for {transaction['name']}.")
@@ -99,7 +123,7 @@ class AccountManager:
     # Deletes a bank account
     def delete_account(self, account_number: str) -> bool:
         if account_number not in self.accounts:
-            self.error_logger.log_constraint_error("Cannot delete account", 
+            error_logger.log_constraint_error("Cannot delete account", 
                 f"Account {account_number} does not exist.")
             return False
 
@@ -115,19 +139,37 @@ class AccountManager:
             self.accounts[account_number]["status"] = "D"  # Change status to Disabled
             print(f"✅ Account {account_number} has been disabled.")
             return True
-        self.error_logger.log_constraint_error("Cannot disable account", 
+        error_logger.log_constraint_error("Cannot disable account", 
                 f"Account {account_number} does not exist.")
         return False
 
     # Changes the account transaction plan
     def changeplan(self, account_number: str, new_plan: str) -> bool:
-        if self.accounts[account_number]["plan"] == "NS" and new_plan == "SP":
-            self.accounts[account_number]["plan"] = "SP"
+        if account_number not in self.accounts:
+            return False
+
+        if self.is_account_disabled(account_number):
+            error_logger.log_constraint_error(
+                f"Cannot change plan on disabled account {account_number}.",
+                "account_manager.py"
+            )
+            return False
+
+        current_plan = self.accounts[account_number]["plan"].strip()
+        new_plan = new_plan.strip()
+
+        if current_plan != new_plan and new_plan in ("SP", "NP"):
+            self.accounts[account_number]["plan"] = new_plan
             return True
         else:
-            self.error_logger.log_constraint_error("Invalid Plan Change", 
-                f"Account {account_number} cannot change from {self.accounts[account_number]['plan']} to {new_plan}.")
+            error_logger.log_constraint_error(
+                f"Account {account_number} cannot change from {current_plan} to {new_plan}.",
+                "account_manager.py"
+            )
             return False
+
+
+
 
 
 
