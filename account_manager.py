@@ -78,7 +78,7 @@ class AccountManager:
         allowed_companies = ["EC", "CQ", "FI"]
         if company not in allowed_companies:
             error_logger.log_constraint_error("Invalid Payee", 
-                f"Account {account_number} tried to pay an invalid company: {company}.", fatal=True)
+                f"Account {account_number} tried to pay an invalid company: {company}.")
             return False
 
         self.accounts[account_number]["balance"] -= amount

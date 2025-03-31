@@ -21,19 +21,21 @@ def setup_accounts_and_transactions(tmp_path):
 
     # Transactions to trigger each branch
     transactions.write_text(
-        "04 user_three          01002 00100.00 SP\n"       # Valid Deposit
-        "05 joe                 00000 00000.00 SP\n"        # Create Account
-        "06 user_three          01002 00000.00 SP\n"        # Delete Account
-        "07 user_two            01001 00000.00 SP\n"        # Disable Account
-        "08 user_three          01002 00000.00 SP\n"        # Change Plan - success
-        "01 test_user           01003 00050.00 NP\n"        # Withdrawal - valid
-        "01 test_user           01003 99999.00 NP\n"        # Withdrawal - insufficient funds
-        "03 test_user           01003 00030.00 EC\n"        # Paybill - valid company
-        "03 test_user           01003 00030.00 AR\n"        # Paybill - invalid company
-        "04 ghost               99999 00100.00 NP\n"        # Deposit to non-existent account
-        "08 test_user           01003 00000.00 NP\n"        # Change Plan - fail (already NP)
-        "09 test_user           01003 00000.00 NP\n"        # INVALID CODE → should log error and exit
-        "00 END_OF_SESSION      00000 00000.00 NP\n"        # End of session
+        "04 user_three           01002 00100.00 SP\n"        # Valid Deposit
+        "05 joe                  00000 00000.00 SP\n"        # Create success
+        "06 user_three           01002 00000.00 SP\n"        # Delete success
+        "07 user_two             01001 00000.00 SP\n"        # Disable Account
+        "08 user_one             01000 00000.00 SP\n"        # Change Plan success
+        "01 test_user            01003 00050.00 NP\n"        # Withdrawal success
+        "01 test_user            01003 99999.00 NP\n"        # Withdrawal fail
+        "03 test_user            01003 00030.00 EC\n"        # Paybill success
+        "03 test_user            01003 00030.00 AR\n"        # Paybill fail
+        "04 ghost                99999 00100.00 NP\n"        # Deposit to non-existent account
+        "08 test_user            01003 00000.00 NP\n"        # Change Plan fail (already NP)
+        "06 ghost                99999 00000.00 NP\n"        # Delete fail
+        "07 ghost                99999 00000.00 NP\n"        # Disable fail
+        "09 test_user            01003 00000.00 NP\n"        # INVALID CODE (should log error and exit)
+        "00 END_OF_SESSION       00000 00000.00 NP\n"        # End of session
     )
 
     return BankingSystem(str(master), str(transactions))
@@ -45,7 +47,7 @@ def test_apply_transactions_statement_coverage(setup_accounts_and_transactions):
     try:
         system.apply_transactions()
     except SystemExit:
-        pass  # Expected due to the invalid transaction code (09)
+        pass
 
     # Confirm Joe was created
     assert "joe" in [acc["name"] for acc in system.accounts.values()]
@@ -60,7 +62,8 @@ def test_apply_transactions_statement_coverage(setup_accounts_and_transactions):
     assert system.accounts["01003"]["balance"] < 500.00
 
     # Change plan success
-    assert system.accounts["01000"]["plan"] == "NP" or system.accounts["01003"]["plan"] == "SP"
+    assert system.accounts["01000"]["plan"] == "SP"  # Changed from NP to SP (success)
+    assert system.accounts["01003"]["plan"] == "NP"  # Remained NP (failed to change)
 
     # Confirm deposit to ghost failed → ghost not added
     assert "ghost" not in [acc["name"] for acc in system.accounts.values()]
