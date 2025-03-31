@@ -1,3 +1,7 @@
+# -------------------------------------------------------------------------------------------
+# This code tests statement coverage for the apply_transactions method in banking_system.py
+# -------------------------------------------------------------------------------------------
+
 import pytest
 from banking_system import BankingSystem
 
