@@ -89,7 +89,7 @@ def test_invalid_plan_type(system):
         "1003": {"account_number": "1003", "balance": 100.0, "total_transactions": 2, "plan": "XX"}
     }
     system.calculate_transaction_fee()
-    # Invalid plan still uses 0.10 (default in else), so it charges fee
+    # Invalid plan still uses 0.10 so it charges fee
     assert system.accounts["1003"]["balance"] == 99.80
 
 
