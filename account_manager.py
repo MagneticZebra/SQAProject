@@ -6,7 +6,7 @@ class AccountManager:
     
     # Processes a transaction and updates the account balances
     def process_transaction(self, transaction: dict) -> bool:
-        account_number = transaction["account_number"]
+        account_number = transaction["account_number"].strip().zfill(5)
         amount = transaction["amount"]
         transaction_code = transaction["code"]
 
