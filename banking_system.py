@@ -74,7 +74,16 @@ class BankingSystem:
             if account_number == "00000":  # Skip special "END OF FILE" account
                 continue
 
-            fee = 0.05 if account["plan"] == "SP" else 0.10  # Different fees based on account type
+            if account["plan"] == "SP":
+                fee = 0.05
+            elif account["plan"] == "NP":
+                fee = 0.10
+            else:
+                error_logger.log_constraint_error(
+                    f"Invalid account plan type: {account['plan']}",
+                    f"account {account_number} has unsupported plan type",
+                    fatal=True
+                )
             total_transactions = account.get("total_transactions", 0)
             total_fee = fee * total_transactions  # Apply fee for each transaction
 
