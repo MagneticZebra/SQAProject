@@ -1,0 +1,7 @@
+01000 andrew_hunter        D 00099.90 0001 NP
+01001 darshil_patel        A 00349.90 0001 NP
+01002 disha_padia          A 02524.85 0003 SP
+01003 robert_pianezza      A 00424.60 0004 NP
+01004 john_wick            A 00300.00 0000 NP
+01005 john_wick            A 00300.00 0000 NP
+01006 END_OF_FILE          A 00000.00 0000 NP

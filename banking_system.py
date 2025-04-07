@@ -136,7 +136,7 @@ class BankingSystem:
         with open(file_path, "r") as file:
             for line in file:
                 if line.startswith("00"):  # End of session
-                    break
+                    continue
                 transaction = {
                     "code": line[:2].strip(),
                     "name": line[3:23].strip(),

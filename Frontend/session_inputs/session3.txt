@@ -1,0 +1,7 @@
+standard
+disha_padia
+paybill
+01002
+FI
+75.00
+logout

@@ -1,0 +1,5 @@
+admin
+create
+john_wick
+300.00
+logout

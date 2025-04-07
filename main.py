@@ -19,10 +19,20 @@ Output Files:
 
 
 from banking_system import BankingSystem
+import sys
 
-# File paths
-old_master_file = "old_master_accounts.txt"
-merged_transaction_file = "merged_transactions.txt"
+if len(sys.argv) != 3:
+    print("Usage: python3 main.py <old_master_file> <merged_transaction_file>")
+    sys.exit(1)
+
+#File Paths
+old_master_file = sys.argv[1]
+merged_transaction_file = sys.argv[2]
+
+
+# # File paths
+# old_master_file = "old_master_accounts.txt"
+# merged_transaction_file = "merged_transactions.txt"
 
 # Initialize Banking System
 banking_system = BankingSystem(old_master_file, merged_transaction_file)
