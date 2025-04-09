@@ -1,0 +1,6 @@
+standard
+dani_lilani
+deposit
+01005
+500
+logout

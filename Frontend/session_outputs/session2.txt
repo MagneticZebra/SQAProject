@@ -1,3 +1,0 @@
-01 robert_pianezza      01003 00100.00 NP
-04 darshil_patel        01001 00100.00 NP
-00                      00000 00000.00 00

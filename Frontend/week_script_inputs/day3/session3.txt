@@ -1,0 +1,5 @@
+admin
+delete
+andrew_hunter
+01000
+logout

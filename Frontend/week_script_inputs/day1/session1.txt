@@ -1,0 +1,9 @@
+standard
+disha_padia
+deposit
+01002
+300.00
+withdrawal
+01002
+200.00
+logout

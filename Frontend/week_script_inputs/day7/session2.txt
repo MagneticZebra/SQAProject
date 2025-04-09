@@ -1,0 +1,6 @@
+standard
+noah_ali
+deposit
+01007
+500
+logout

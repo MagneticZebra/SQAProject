@@ -1,0 +1,9 @@
+standard
+emma_santiago
+withdrawal
+01006
+300.00
+withdrawal
+01006
+100.00
+logout

@@ -1,0 +1,5 @@
+admin
+create
+noah_ali
+1000.00
+logout

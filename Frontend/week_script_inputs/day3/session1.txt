@@ -1,0 +1,7 @@
+standard
+robert_pianezza
+transfer
+01003
+01001
+500.00
+logout

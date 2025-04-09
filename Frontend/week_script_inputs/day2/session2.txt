@@ -1,0 +1,9 @@
+standard
+robert_pianezza
+withdrawal
+01003
+80.00
+deposit
+01003
+100.00
+logout
