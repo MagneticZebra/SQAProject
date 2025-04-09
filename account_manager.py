@@ -103,22 +103,27 @@ class AccountManager:
 
     # Creates a new bank account
     def create_account(self, transaction: dict) -> bool:
-        # Find the highest current account number and increment it
+        # Check if the same name already exists
+        for acc in self.accounts.values():
+            if acc["name"] == transaction["name"]:
+                return False
+
+        # Generate a new unique account number
         max_account_number = max(int(num) for num in self.accounts.keys()) if self.accounts else 10000
         new_account_number = str(max_account_number + 1).zfill(5)  # Ensure 5-digit format
-        
-        # Create the new account
+
         self.accounts[new_account_number] = {
             "account_number": new_account_number,
             "name": transaction["name"],
-            "status": "A",  # Active status
-            "balance": transaction["amount"],  # Initial deposit amount
+            "status": "A",  # Active by default
+            "balance": transaction["amount"],  # Initial deposit
             "total_transactions": 0,
-            "plan": transaction["misc"],  # Transaction plan (NP or SP)
+            "plan": transaction["misc"],  # SP or NP
         }
 
         print(f"✅ New account created: {new_account_number} for {transaction['name']}.")
         return True
+
 
     # Deletes a bank account
     def delete_account(self, account_number: str) -> bool:
